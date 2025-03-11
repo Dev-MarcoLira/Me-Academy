@@ -1,0 +1,107 @@
+// schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Alumni {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  progress      Progress[]
+  classBookings ClassBooking[]
+  reminders     Reminder[]
+  Feedback      Feedback[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+}
+
+model Teacher {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  classes     Class[]
+  feedbacks   Feedback[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Report Report[]
+}
+
+model Class {
+  id           Int       @id @default(autoincrement())
+  name         String
+  teacherId    Int
+  schedule     DateTime
+  teacher      Teacher  @relation(fields: [teacherId], references: [id])
+  bookings     ClassBooking[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ClassBooking {
+  id        Int      @id @default(autoincrement())
+  alumniId  Int
+  classId   Int
+  status    String   
+  checkInMethod String 
+  alumni    Alumni   @relation(fields: [alumniId], references: [id])
+  class     Class    @relation(fields: [classId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Progress {
+  id          Int      @id @default(autoincrement())
+  alumniId    Int
+  exerciseLog String
+  alumni      Alumni   @relation(fields: [alumniId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Reminder {
+  id        Int      @id @default(autoincrement())
+  alumniId  Int
+  message   String
+  alumni    Alumni   @relation(fields: [alumniId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  teacherId Int
+  alumniId  Int
+  feedbackText String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  alumni    Alumni   @relation(fields: [alumniId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Report {
+  id         Int      @id @default(autoincrement())
+  adminId    Int
+  reportType String
+  data       String
+  admin      Admin    @relation(fields: [adminId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
